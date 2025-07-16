@@ -68,11 +68,23 @@
 
         const result = await response.json();
 
-        if (result.error) {
+        // Handle Hugging Face-style response: list of dicts with "generated_text"
+        if (Array.isArray(result) && result[0]?.generated_text) {
+          const fullText = result[0].generated_text;
+          const userInput = input.trim();
+          
+          // Remove the prompt from the beginning, if it exists
+          const cleanedOutput = fullText.startsWith(userInput)
+            ? fullText.slice(userInput.length).trim()
+            : fullText;
+
+          output.textContent = cleanedOutput;
+        } else if (result.error) {
           output.textContent = `Error: ${result.error}`;
         } else {
           output.textContent = JSON.stringify(result, null, 2);
         }
+
       } catch (error) {
         output.textContent = "An error occurred: " + error.message;
       }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Text Completion</title>
+</head>
+<body>
+  <h1>Enter Text</h1>
+  <textarea id="input" rows="4" cols="50"></textarea><br>
+  <button onclick="submit()">Submit</button>
+  <pre id="result"></pre>
+
+  <script>
+    async function submit() {
+      const text = document.getElementById("input").value;
+      const response = await fetch('/api/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inputs: text })
+      });
+      const data = await response.json();
+      document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>

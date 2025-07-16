@@ -23,7 +23,7 @@ def handle_query():
     payload = {
         "inputs": data["inputs"],
         "parameters": {
-            "max_new_tokens": data.get("max_new_tokens", 150)
+            "max_new_tokens": data.get("max_new_tokens", 300)
         }
     }
 

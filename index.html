@@ -1,63 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>MediChat</title>
+  <meta charset="UTF-8" />
+  <title>AlpacaMD</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9fafb;
       padding: 2rem;
-      background-color: #f4f4f4;
+      max-width: 700px;
+      margin: auto;
+      color: #222;
     }
     h1 {
-      color: #333;
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 2rem;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
     }
     textarea {
       width: 100%;
-      height: 100px;
-      padding: 10px;
-      margin-bottom: 1rem;
-      font-size: 16px;
+      height: 120px;
+      padding: 1rem;
+      font-size: 1rem;
+      border: 1.5px solid #ccc;
+      border-radius: 6px;
+      resize: vertical;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+    textarea:focus {
+      border-color: #2980b9;
+      outline: none;
     }
     button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #1976d2;
-      color: white;
+      margin-top: 1rem;
+      background-color: #2980b9;
       border: none;
+      padding: 12px 25px;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 6px;
       cursor: pointer;
-      border-radius: 4px;
+      width: 100%;
+      transition: background-color 0.3s ease;
     }
     button:hover {
-      background-color: #1565c0;
+      background-color: #1c5980;
     }
-    pre {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      background-color: #fff;
-      border: 1px solid #ccc;
+    #outputArea {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background-color: #eaf2f8;
+      border-left: 5px solid #2980b9;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      line-height: 1.5;
       white-space: pre-wrap;
-      word-break: break-word;
+      color: #34495e;
+      min-height: 100px;
+      box-shadow: 0 4px 8px rgb(0 0 0 / 0.05);
     }
   </style>
 </head>
 <body>
 
-  <h1>MediChat 7B</h1>
+  <h1>AlpacaMD - Medical AI Assistant</h1>
 
-  <label for="inputText">Enter Prompt:</label><br>
-  <textarea id="inputText" placeholder="Type your prompt here..."></textarea><br>
+  <label for="inputText">Enter your medical question or prompt:</label>
+  <textarea id="inputText" placeholder="E.g., What are the symptoms of diabetes?"></textarea>
 
-  <button onclick="submitPrompt()">Submit</button>
+  <button onclick="submitPrompt()">Get Answer</button>
 
-  <pre id="outputArea"></pre>
+  <div id="outputArea" aria-live="polite" role="region" aria-label="AI generated response">
+    <!-- Response will appear here -->
+  </div>
 
   <script>
     async function submitPrompt() {
-      const input = document.getElementById("inputText").value;
+      const input = document.getElementById("inputText").value.trim();
       const output = document.getElementById("outputArea");
 
-      output.textContent = "Loading...";
+      if (!input) {
+        output.textContent = "Please enter a prompt.";
+        return;
+      }
+
+      output.textContent = "Generating response...";
 
       try {
         const response = await fetch('/api/query', {
@@ -68,23 +103,19 @@
 
         const result = await response.json();
 
-        // Handle Hugging Face-style response: list of dicts with "generated_text"
         if (Array.isArray(result) && result[0]?.generated_text) {
           const fullText = result[0].generated_text;
-          const userInput = input.trim();
-          
-          // Remove the prompt from the beginning, if it exists
-          const cleanedOutput = fullText.startsWith(userInput)
-            ? fullText.slice(userInput.length).trim()
+          // Remove the prompt text if repeated
+          const cleanedOutput = fullText.startsWith(input)
+            ? fullText.slice(input.length).trim()
             : fullText;
 
-          output.textContent = cleanedOutput;
+          output.textContent = cleanedOutput || "No response generated.";
         } else if (result.error) {
           output.textContent = `Error: ${result.error}`;
         } else {
           output.textContent = JSON.stringify(result, null, 2);
         }
-
       } catch (error) {
         output.textContent = "An error occurred: " + error.message;
       }

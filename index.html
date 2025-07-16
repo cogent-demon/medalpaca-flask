@@ -1,25 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Text Completion</title>
+  <meta charset="UTF-8">
+  <title>Text Completion Interface</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      color: #333;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      margin-bottom: 1rem;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #1565c0;
+    }
+    pre {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
 </head>
 <body>
-  <h1>Enter Text</h1>
-  <textarea id="input" rows="4" cols="50"></textarea><br>
-  <button onclick="submit()">Submit</button>
-  <pre id="result"></pre>
+
+  <h1>Text Completion Tool</h1>
+
+  <label for="inputText">Enter Prompt:</label><br>
+  <textarea id="inputText" placeholder="Type your prompt here..."></textarea><br>
+
+  <button onclick="submitPrompt()">Submit</button>
+
+  <pre id="outputArea"></pre>
 
   <script>
-    async function submit() {
-      const text = document.getElementById("input").value;
-      const response = await fetch('/api/query', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inputs: text })
-      });
-      const data = await response.json();
-      document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+    async function submitPrompt() {
+      const input = document.getElementById("inputText").value;
+      const output = document.getElementById("outputArea");
+
+      output.textContent = "Loading...";
+
+      try {
+        const response = await fetch('/api/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inputs: input })
+        });
+
+        const result = await response.json();
+
+        if (result.error) {
+          output.textContent = `Error: ${result.error}`;
+        } else {
+          output.textContent = JSON.stringify(result, null, 2);
+        }
+      } catch (error) {
+        output.textContent = "An error occurred: " + error.message;
+      }
     }
   </script>
+
 </body>
 </html>

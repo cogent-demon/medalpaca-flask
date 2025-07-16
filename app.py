@@ -32,10 +32,6 @@ def handle_query():
 
 @app.route('/')
 def home():
-    return "Hugging Face API Gateway is running!"
-
-@app.route('/ui')
-def ui():
     return send_from_directory('.', 'index.html')
 
 if __name__ == '__main__':
